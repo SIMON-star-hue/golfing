@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro Koto Golf Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a;
+    --green-mid: #2d5a3d;
+    --green-light: #4a8c5c;
+    --gold: #c8a84b;
+    --gold-light: #e8c86a;
+    --cream: #f5f0e8;
+    --white: #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Barlow', sans-serif; background: var(--green-deep); color: var(--cream); overflow-x: hidden; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: linear-gradient(to bottom, rgba(10,25,16,0.9), transparent);
+    backdrop-filter: blur(2px);
+    transition: all 0.4s ease;
+  }
+  nav.scrolled {
+    background: rgba(10,25,16,0.97);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    padding: 14px 40px;
+  }
+  .nav-logo { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 1.4rem; color: var(--gold); letter-spacing: 2px; text-decoration: none; }
+  .nav-logo span { color: var(--white); font-weight: 400; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { color: rgba(245,240,232,0.7); text-decoration: none; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; transition: color 0.3s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+  .nav-links a.active { border-bottom: 1px solid var(--gold); padding-bottom: 2px; }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: var(--cream); transition: all 0.3s ease; transform-origin: center; }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .mobile-menu {
+    position: fixed; inset: 0; background: rgba(10,25,16,0.98); z-index: 150;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 40px;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  }
+  .mobile-menu.open { opacity: 1; pointer-events: all; }
+  .mobile-menu a { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: var(--cream); text-decoration: none; letter-spacing: 2px; transition: color 0.3s; }
+  .mobile-menu a:hover { color: var(--gold); }
+  @media (max-width: 700px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    nav { padding: 16px 24px; }
+    nav.scrolled { padding: 12px 24px; }
+  }
+
+  /* HERO */
+  .hero {
+    position: relative; min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(160deg, #060e08 0%, #0b1c10 40%, #07130a 100%);
+    overflow: hidden;
+  }
+  #golfCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .hero-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
+  .scroll-hint {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: rgba(245,240,232,0.4); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; z-index: 2;
+  }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollPulse 2s ease infinite; }
+  @keyframes scrollPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  .badge { display: inline-block; border: 1px solid var(--gold); color: var(--gold); font-size: 11px; letter-spacing: 4px; text-transform: uppercase; padding: 6px 20px; margin-bottom: 30px; animation: fadeUp 1s ease both; }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(3.5rem, 10vw, 8rem); font-weight: 900; line-height: 0.9; color: var(--white); animation: fadeUp 1s ease 0.2s both; }
+  .hero h1 span { color: var(--gold); font-style: italic; }
+  .hero-sub { margin-top: 24px; font-size: clamp(1rem, 2.5vw, 1.3rem); font-weight: 300; letter-spacing: 2px; color: rgba(245,240,232,0.7); animation: fadeUp 1s ease 0.4s both; }
+  .hero-cta { margin-top: 50px; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; animation: fadeUp 1s ease 0.6s both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  .btn-gold { background: var(--gold); color: var(--green-deep); padding: 14px 36px; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; border: none; cursor: pointer; text-decoration: none; transition: all 0.3s; display: inline-block; }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--cream); padding: 14px 36px; font-family: 'Barlow', sans-serif; font-weight: 500; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; border: 1px solid rgba(245,240,232,0.4); cursor: pointer; text-decoration: none; transition: all 0.3s; display: inline-block; }
+  .btn-outline:hover { border-color: var(--cream); transform: translateY(-2px); }
+
+  /* STAT BAR */
+  .stat-bar { display: flex; background: var(--gold); overflow: hidden; flex-wrap: wrap; }
+  .stat-item { flex: 1; min-width: 150px; padding: 24px 28px; border-right: 1px solid rgba(26,58,42,0.3); color: var(--green-deep); }
+  .stat-item:last-child { border-right: none; }
+  .stat-number { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 900; line-height: 1; }
+  .stat-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; opacity: 0.7; }
+
+  /* SECTIONS */
+  section { padding: 80px 20px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .section-label { font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; line-height: 1.1; color: var(--white); margin-bottom: 24px; }
+  .section-title em { font-style: italic; color: var(--gold); }
+  .gold-divider { width: 60px; height: 2px; background: var(--gold); margin: 20px 0 40px; }
+
+  /* PACKAGE */
+  .package-section { background: linear-gradient(135deg, #0f2318 0%, #1a3a2a 100%); position: relative; overflow: hidden; }
+  .package-section::before { content: '"\2019'; position: absolute; font-family: 'Playfair Display', serif; font-size: 500px; color: rgba(200,168,75,0.03); top: -100px; right: -50px; line-height: 1; pointer-events: none; }
+  .package-card { background: var(--gold); color: var(--green-deep); padding: 50px 40px; position: relative; max-width: 700px; }
+  .package-card::before { content: 'BEST VALUE'; position: absolute; top: -12px; left: 40px; background: var(--green-deep); color: var(--gold); font-size: 10px; letter-spacing: 4px; padding: 4px 16px; }
+  .package-price { font-family: 'Playfair Display', serif; font-size: 5rem; font-weight: 900; line-height: 1; }
+  .package-price sup { font-size: 2rem; vertical-align: super; }
+  .package-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; margin: 8px 0 20px; }
+  .package-includes { list-style: none; margin-top: 20px; }
+  .package-includes li { padding: 8px 0; border-bottom: 1px solid rgba(26,58,42,0.2); font-size: 15px; display: flex; align-items: center; gap: 10px; }
+  .package-includes li::before { content: '✓'; font-weight: 700; font-size: 13px; background: var(--green-deep); color: var(--gold); width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .package-note { margin-top: 20px; font-size: 13px; font-style: italic; opacity: 0.7; }
+
+  /* FEES */
+  .fees-section { background: #0f2318; }
+  .fees-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2px; margin-top: 50px; }
+  .fee-card { background: rgba(45,90,61,0.3); border: 1px solid rgba(200,168,75,0.15); padding: 32px 28px; transition: all 0.3s; position: relative; overflow: hidden; }
+  .fee-card::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--gold); transition: width 0.4s ease; }
+  .fee-card:hover { background: rgba(45,90,61,0.5); }
+  .fee-card:hover::after { width: 100%; }
+  .fee-category { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+  .fee-items { list-style: none; }
+  .fee-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(245,240,232,0.08); font-size: 14px; }
+  .fee-item:last-child { border-bottom: none; }
+  .fee-item .name { color: rgba(245,240,232,0.8); }
+  .fee-item .price { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--gold-light); font-size: 16px; }
+  .fee-item .price.free { color: #5dba6a; font-size: 14px; font-family: 'Barlow', sans-serif; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ATTIRE */
+  .attire-section { background: var(--green-deep); }
+  .attire-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; }
+  @media (max-width: 600px) { .attire-grid { grid-template-columns: 1fr; } }
+  .attire-card { padding: 30px; border: 1px solid rgba(200,168,75,0.2); }
+  .attire-card.allowed { border-color: rgba(93,186,106,0.3); background: rgba(93,186,106,0.05); }
+  .attire-card.forbidden { border-color: rgba(220,80,80,0.3); background: rgba(220,80,80,0.05); }
+  .attire-card h3 { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
+  .attire-card.allowed h3 { color: #5dba6a; }
+  .attire-card.forbidden h3 { color: #e05555; }
+  .attire-list { list-style: none; }
+  .attire-list li { padding: 8px 0; font-size: 14px; color: rgba(245,240,232,0.8); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(245,240,232,0.06); }
+  .attire-card.allowed .attire-list li::before { content: '✓'; color: #5dba6a; }
+  .attire-card.forbidden .attire-list li::before { content: '✗'; color: #e05555; }
+
+  /* CONTACT */
+  .contact-section { background: linear-gradient(160deg, #0a1a10 0%, #1a3a2a 100%); text-align: center; }
+  .contact-cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
+  .contact-card { border: 1px solid rgba(200,168,75,0.3); padding: 30px 40px; min-width: 200px; }
+  .contact-card .label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+  .contact-card .value { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--white); }
+  .pro-name { font-family: 'Playfair Display', serif; font-size: 2rem; font-style: italic; color: var(--gold); margin-top: 40px; }
+
+  .contact-btns {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .cbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+  }
+  .cbtn-call {
+    background: var(--gold);
+    color: var(--green-deep);
+  }
+  .cbtn-call:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(200,168,75,0.35);
+  }
+  .cbtn-wa {
+    background: #25D366;
+    color: #ffffff;
+  }
+  .cbtn-wa:hover {
+    background: #20bc5a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37,211,102,0.35);
+  }
+  .contact-card {
+    border: 1px solid rgba(200,168,75,0.3);
+    padding: 30px 32px;
+    min-width: 220px;
+    transition: border-color 0.3s;
+  }
+  .contact-card:hover {
+    border-color: rgba(200,168,75,0.65);
+  }
+</style>
+</head>
+<body>
+
+<nav id="navbar">
+  <a href="#" class="nav-logo">PRO <span>KOTO</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#fees" data-section="fees">Fees</a></li>
+    <li><a href="#package" data-section="package">Package</a></li>
+    <li><a href="#attire" data-section="attire">Attire</a></li>
+    <li><a href="#contact" data-section="contact">Contact</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#fees" class="mobile-link">Fees</a>
+  <a href="#package" class="mobile-link">Package</a>
+  <a href="#attire" class="mobile-link">Attire</a>
+  <a href="#contact" class="mobile-link">Contact</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="golfCanvas"></canvas>
+  <div class="hero-content">
+    <div class="badge">Golf Academy · Kampala</div>
+    <h1>PRO KOTO<br><span>Golf</span></h1>
+    <p class="hero-sub">Professional Coaching · Green Fees · Training Services</p>
+    <div class="hero-cta">
+      <a href="#package" class="btn-gold">View Package</a>
+      <a href="#contact" class="btn-outline">Contact Us</a>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Explore</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stat-bar">
+  <div class="stat-item"><div class="stat-number">10</div><div class="stat-label">Lessons in Package</div></div>
+  <div class="stat-item"><div class="stat-number">8–10</div><div class="stat-label">Rounds to Course-Ready</div></div>
+  <div class="stat-item"><div class="stat-number">700k</div><div class="stat-label">All-Inclusive Package</div></div>
+  <div class="stat-item"><div class="stat-number">Free</div><div class="stat-label">Kids Green Fees</div></div>
+</div>
+
+<!-- PACKAGE -->
+<section class="package-section" id="package">
+  <div class="container">
+    <div class="section-label">Elite Coaching Programme</div>
+    <h2 class="section-title">The <em>Complete</em><br>Beginner Package</h2>
+    <p style="max-width:560px;color:rgba(245,240,232,0.7);line-height:1.7;margin-bottom:40px;">
+      Our statistics show that beginners need 8–10 rounds to leave the range and start playing on course. During this period, you gain deep understanding of the sport — theory and practical. We've packaged everything so you focus on one thing: training.
+    </p>
+    <div class="package-card">
+      <div class="package-price"><sup>UGX </sup>700k</div>
+      <div class="package-title">10-Lesson All-Inclusive Package</div>
+      <ul class="package-includes">
+        <li>10 professional coaching sessions</li>
+        <li>All range fees included</li>
+        <li>Range balls included</li>
+        <li>Caddie fees covered</li>
+        <li>2 on-course sessions included</li>
+        <li>Coach fees — fully covered</li>
+        <li>No hidden extra charges</li>
+      </ul>
+      <p class="package-note">* Just show up and train — everything else is handled.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEES -->
+<section class="fees-section" id="fees">
+  <div class="container">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Fee <em>Structure</em></h2>
+    <div class="gold-divider"></div>
+    <div class="fees-grid">
+      <div class="fee-card">
+        <div class="fee-category">General Play</div>
+        <ul class="fee-items">
+          <li class="fee-item"><span class="name">Green Fees</span><span class="price">20,000</span></li>
+          <li class="fee-item"><span class="name">Range Fees</span><span class="price">5,000</span></li>
+        </ul>
+      </div>
+      <div class="fee-card">
+        <div class="fee-category">Per Lesson · Range (Beginners)</div>
+        <ul class="fee-items">
+          <li class="fee-item"><span class="name">Range Fees</span><span class="price">5,000</span></li>
+          <li class="fee-item"><span class="name">Coach Fees</span><span class="price">50,000</span></li>
+          <li class="fee-item"><span class="name">Range Balls</span><span class="price">15,000</span></li>
+          <li class="fee-item"><span class="name">Caddie Fees</span><span class="price">20,000</span></li>
+        </ul>
+      </div>
+      <div class="fee-card">
+        <div class="fee-category">Kids Programme</div>
+        <ul class="fee-items">
+          <li class="fee-item"><span class="name">Coach Fees</span><span class="price">50,000</span></li>
+          <li class="fee-item"><span class="name">Green Fees</span><span class="price free">Free</span></li>
+          <li class="fee-item"><span class="name">Caddie Fees</span><span class="price">15,000</span></li>
+        </ul>
+      </div>
+      <div class="fee-card">
+        <div class="fee-category">Equipment Hire</div>
+        <ul class="fee-items">
+          <li class="fee-item"><span class="name">Adult Golf Bag</span><span class="price">15,000</span></li>
+          <li class="fee-item"><span class="name">Kids Golf Bag</span><span class="price">10,000</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ATTIRE -->
+<section class="attire-section" id="attire">
+  <div class="container">
+    <div class="section-label">Dress Code</div>
+    <h2 class="section-title">Golf <em>Attire</em></h2>
+    <div class="gold-divider"></div>
+    <div class="attire-grid">
+      <div class="attire-card allowed">
+        <h3>✓ Allowed</h3>
+        <ul class="attire-list">
+          <li>Coloured shirts / jerseys</li>
+          <li>Converse / sneakers</li>
+          <li>Golf shoes</li>
+          <li>Office shoes (range only)</li>
+        </ul>
+      </div>
+      <div class="attire-card forbidden">
+        <h3>✗ Not Permitted on Course</h3>
+        <ul class="attire-list">
+          <li>Jeans (not allowed on course)</li>
+          <li>Office shoes (not on course)</li>
+          <li>Plain / non-collared attire</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <div class="container">
+    <div class="section-label" style="text-align:center">Get In Touch</div>
+    <h2 class="section-title" style="text-align:center">Book Your <em>First Lesson</em></h2>
+    <div class="gold-divider" style="margin:20px auto 0;"></div>
+    <p class="pro-name">Pro James Koto</p>
+    <div class="contact-cards">
+      <!-- Primary number -->
+      <div class="contact-card">
+        <div class="label">Primary · Call / WhatsApp</div>
+        <div class="value">0779 100 655</div>
+        <div class="contact-btns">
+          <a href="tel:+256779100655" class="cbtn cbtn-call">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 0h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 7.91a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Call
+          </a>
+          <a href="https://wa.me/256779100655" target="_blank" class="cbtn cbtn-wa">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+            WhatsApp
+          </a>
+        </div>
+      </div>
+      <!-- Secondary number -->
+      <div class="contact-card">
+        <div class="label">Alternative · Call / WhatsApp</div>
+        <div class="value">0703 961 316</div>
+        <div class="contact-btns">
+          <a href="tel:+256703961316" class="cbtn cbtn-call">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 0h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 7.91a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Call
+          </a>
+          <a href="https://wa.me/256703961316" target="_blank" class="cbtn cbtn-wa">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+            WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:60px;padding-top:40px;border-top:1px solid rgba(200,168,75,0.2);color:rgba(245,240,232,0.4);font-size:12px;letter-spacing:2px;">
+      © 2025 Pro Koto Golf Academy · Kampala, Uganda
+    </div>
+  </div>
+</section>
+
+<script>
+// ========== GOLF CANVAS ==========
+(function() {
+  const canvas = document.getElementById('golfCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Stars
+  const stars = Array.from({length: 100}, () => ({
+    x: Math.random(), y: Math.random() * 0.58,
+    r: Math.random() * 1.3 + 0.2,
+    a: Math.random() * 0.9 + 0.1,
+    phase: Math.random() * Math.PI * 2,
+    freq: Math.random() * 0.05 + 0.01
+  }));
+
+  let balls = [], lastSpawn = -9999;
+
+  function spawnBall() {
+    const fromLeft = Math.random() > 0.5;
+    balls.push({
+      x: fromLeft ? -30 : W + 30,
+      y: H * (0.12 + Math.random() * 0.42),
+      vx: fromLeft ? (1.8 + Math.random() * 2.2) : -(1.8 + Math.random() * 2.2),
+      vy: -(1.2 + Math.random() * 1.8),
+      gravity: 0.022,
+      r: 8 + Math.random() * 4,
+      spin: 0,
+      spinSpeed: (Math.random() - 0.5) * 0.12,
+      trail: [],
+      opacity: 0
+    });
+  }
+
+  function drawBall(b) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, b.opacity));
+    ctx.translate(b.x, b.y);
+    ctx.rotate(b.spin);
+    // shadow
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 3;
+    const g = ctx.createRadialGradient(-b.r*0.35, -b.r*0.35, b.r*0.05, 0, 0, b.r);
+    g.addColorStop(0, '#ffffff');
+    g.addColorStop(0.55, '#eeeeee');
+    g.addColorStop(1, '#bbbbbb');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, 0, b.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+    // dimples
+    [[0,0],[b.r*.38,0],[-b.r*.38,0],[0,b.r*.38],[0,-b.r*.38],
+     [b.r*.28,b.r*.28],[-b.r*.28,b.r*.28],[b.r*.28,-b.r*.28],[-b.r*.28,-b.r*.28]
+    ].forEach(([dx,dy]) => {
+      ctx.beginPath();
+      ctx.arc(dx,dy,b.r*0.11,0,Math.PI*2);
+      ctx.fillStyle='rgba(160,160,160,0.45)';
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  function drawTrail(b) {
+    if (b.trail.length < 3) return;
+    ctx.save();
+    ctx.globalAlpha = 0.2 * Math.min(1, b.opacity);
+    ctx.strokeStyle = '#c8a84b';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 7]);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    b.trail.forEach((p,i) => i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawScene(t) {
+    // Ground
+    const grd = ctx.createLinearGradient(0, H*0.58, 0, H);
+    grd.addColorStop(0,'rgba(10,35,18,0)');
+    grd.addColorStop(0.25,'rgba(12,40,20,0.8)');
+    grd.addColorStop(1,'rgba(4,14,8,1)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, H*0.58, W, H);
+
+    // Fairway stripes
+    for (let i = 0; i < 12; i++) {
+      const sx = W*(i/12);
+      const sg = ctx.createLinearGradient(sx, H*0.65, sx+W/24, H);
+      sg.addColorStop(0,'rgba(35,95,45,0)');
+      sg.addColorStop(0.5,'rgba(35,95,45,0.09)');
+      sg.addColorStop(1,'rgba(35,95,45,0)');
+      ctx.fillStyle = sg;
+      ctx.fillRect(sx, H*0.65, W/24, H*0.35);
+    }
+
+    // Tree silhouette
+    ctx.fillStyle = 'rgba(6,22,11,0.85)';
+    for (let tx = -10; tx < W+30; tx += 26) {
+      const h = 28 + Math.sin(tx*0.07+1.3)*16 + Math.sin(tx*0.13)*8;
+      const w = 16 + Math.sin(tx*0.05)*5;
+      ctx.beginPath();
+      ctx.moveTo(tx+w/2, H*0.635 - h);
+      ctx.lineTo(tx+w, H*0.635);
+      ctx.lineTo(tx, H*0.635);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Putting green
+    ctx.save();
+    ctx.translate(W*0.78, H*0.79);
+    const gg = ctx.createRadialGradient(0,0,10,0,0,130);
+    gg.addColorStop(0,'rgba(45,120,60,0.65)');
+    gg.addColorStop(0.6,'rgba(30,85,42,0.35)');
+    gg.addColorStop(1,'rgba(15,50,25,0)');
+    ctx.fillStyle = gg;
+    ctx.scale(2.4, 0.5);
+    ctx.beginPath();
+    ctx.arc(0,0,120,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // Hole cup
+    ctx.save();
+    ctx.translate(W*0.8, H*0.775);
+    ctx.fillStyle='rgba(0,0,0,0.9)';
+    ctx.beginPath();
+    ctx.ellipse(0,0,10,4,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle='rgba(200,168,75,0.5)';
+    ctx.lineWidth=1;
+    ctx.stroke();
+    ctx.restore();
+
+    // Flag pole
+    ctx.strokeStyle='rgba(235,230,218,0.8)';
+    ctx.lineWidth=1.8;
+    ctx.beginPath();
+    ctx.moveTo(W*0.8, H*0.775);
+    ctx.lineTo(W*0.8, H*0.595);
+    ctx.stroke();
+
+    // Waving pennant
+    const wt = t*0.002;
+    ctx.fillStyle='#c8a84b';
+    ctx.beginPath();
+    ctx.moveTo(W*0.8, H*0.595);
+    ctx.bezierCurveTo(W*0.8+14, H*0.595+3+Math.sin(wt)*3, W*0.8+24, H*0.595+6+Math.sin(wt+0.8)*3, W*0.8+26, H*0.595+10+Math.sin(wt+1.2)*2);
+    ctx.lineTo(W*0.8, H*0.595+16);
+    ctx.closePath();
+    ctx.fill();
+
+    // Moon / glow in sky
+    ctx.save();
+    const moonX = W*0.12, moonY = H*0.12;
+    const moonGlow = ctx.createRadialGradient(moonX,moonY,2,moonX,moonY,60);
+    moonGlow.addColorStop(0,'rgba(230,215,150,0.25)');
+    moonGlow.addColorStop(0.4,'rgba(200,168,75,0.08)');
+    moonGlow.addColorStop(1,'rgba(200,168,75,0)');
+    ctx.fillStyle=moonGlow;
+    ctx.beginPath();
+    ctx.arc(moonX,moonY,60,0,Math.PI*2);
+    ctx.fill();
+    // moon crescent
+    ctx.fillStyle='rgba(240,225,170,0.9)';
+    ctx.beginPath();
+    ctx.arc(moonX,moonY,18,0,Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle='rgba(6,14,8,1)';
+    ctx.beginPath();
+    ctx.arc(moonX+7,moonY-3,15,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function animate(t) {
+    ctx.clearRect(0,0,W,H);
+
+    // Stars
+    stars.forEach(s => {
+      const pulse = 0.4 + 0.6*Math.sin(t*0.001*s.freq*30+s.phase);
+      ctx.save();
+      ctx.globalAlpha=s.a*pulse*0.6;
+      ctx.fillStyle='#e8d8a0';
+      ctx.beginPath();
+      ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    // Horizon glow
+    const hgrd=ctx.createLinearGradient(0,H*0.54,0,H*0.68);
+    hgrd.addColorStop(0,'rgba(200,168,75,0)');
+    hgrd.addColorStop(0.5,'rgba(200,168,75,0.06)');
+    hgrd.addColorStop(1,'rgba(200,168,75,0)');
+    ctx.fillStyle=hgrd;
+    ctx.fillRect(0,H*0.54,W,H*0.14);
+
+    drawScene(t);
+
+    if (t - lastSpawn > 4200) { spawnBall(); lastSpawn = t; }
+
+    balls = balls.filter(b => {
+      b.vy += b.gravity;
+      b.x += b.vx; b.y += b.vy;
+      b.spin += b.spinSpeed;
+      b.trail.push({x:b.x,y:b.y});
+      if (b.trail.length>30) b.trail.shift();
+      if (b.opacity < 1) b.opacity += 0.05;
+      if (b.y>H+60 || b.x<-120 || b.x>W+120) b.opacity -= 0.08;
+      drawTrail(b); drawBall(b);
+      return b.opacity > -0.1;
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  setTimeout(spawnBall, 500);
+  requestAnimationFrame(animate);
+})();
+
+// ========== NAV ==========
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', function(e) {
+    const target = document.querySelector(this.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+    const navH = document.getElementById('navbar').offsetHeight;
+    window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - navH - 10, behavior: 'smooth' });
+    closeMobileMenu();
+  });
+});
+
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+  updateActiveLink();
+});
+
+function updateActiveLink() {
+  let current = '';
+  ['fees','package','attire','contact'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 120) current = id;
+  });
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.classList.toggle('active', a.dataset.section === current);
+  });
+}
+
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => mobileMenu.classList.contains('open') ? closeMobileMenu() : openMobileMenu());
+function openMobileMenu() { mobileMenu.classList.add('open'); hamburger.classList.add('open'); document.body.style.overflow='hidden'; }
+function closeMobileMenu() { mobileMenu.classList.remove('open'); hamburger.classList.remove('open'); document.body.style.overflow=''; }
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeMobileMenu(); });
+</script>
+</body>
+</html>
